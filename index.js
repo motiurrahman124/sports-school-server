@@ -48,6 +48,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("sports-school").collection("users");
+    const classCollection = client.db("sports-school").collection("class");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -163,6 +164,31 @@ async function run() {
       };
 
       const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.post("/class", verifyJWT, verifyInstructor, async (req, res) => {
+      const newClass = req.body;
+      const result = await classCollection.insertOne(newClass);
+      res.send(result);
+    });
+
+    app.get("/instructor/class", verifyJWT, async (req, res) => {
+      const email = req.query.email;
+
+      if (!email) {
+        res.send([]);
+      }
+
+      const decodedEmail = req.decoded.email;
+      if (email !== decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: "forbidden access" });
+      }
+
+      const query = { instructor_email: email };
+      const result = await classCollection.find(query).toArray();
       res.send(result);
     });
 
