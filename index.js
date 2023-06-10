@@ -186,8 +186,37 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/class/deny/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: "denied",
+        },
+      };
+
+      const result = await classCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     app.get("/class", async (req, res) => {
       const result = await classCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.put("/class/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedClass = req.body;
+
+      const course = {
+        $set: {
+          feedback: updatedClass.feedback
+        },
+      };
+
+      const result = await classCollection.updateOne(filter, course, options);
       res.send(result);
     });
 
