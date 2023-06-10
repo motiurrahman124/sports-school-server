@@ -204,6 +204,12 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/class/approved", async (req, res) => {
+      const query = { status: "approved" };
+      const result = await classCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.put("/class/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -236,6 +242,12 @@ async function run() {
 
       const query = { instructor_email: email };
       const result = await classCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/instructors", async (req, res) => {
+      const query = { role: "instructor" };
+      const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
 
