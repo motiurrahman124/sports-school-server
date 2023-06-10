@@ -173,7 +173,25 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/instructor/class", verifyJWT, async (req, res) => {
+    app.patch("/class/approve/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: "approved",
+        },
+      };
+
+      const result = await classCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.get("/class", async (req, res) => {
+      const result = await classCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/instructor/class", verifyJWT, verifyInstructor, async (req, res) => {
       const email = req.query.email;
 
       if (!email) {
