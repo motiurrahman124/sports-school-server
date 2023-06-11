@@ -49,6 +49,7 @@ async function run() {
 
     const usersCollection = client.db("sports-school").collection("users");
     const classCollection = client.db("sports-school").collection("class");
+    const classSelectCollection = client.db("sports-school").collection("selectedClass");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -248,6 +249,12 @@ async function run() {
     app.get("/instructors", async (req, res) => {
       const query = { role: "instructor" };
       const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/class/select", async (req, res) => {
+      const item = req.body;
+      const result = await classSelectCollection.insertOne(item);
       res.send(result);
     });
 
