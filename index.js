@@ -304,21 +304,6 @@ async function run() {
       res.send(result);
     });
 
-    // app.patch("/select/class/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = { _id: new ObjectId(id) };
-    //   console.log("🚀 ~ file: index.js:292 ~ app.patch ~ id:", id)
-    //   const updateDoc = {
-    //     $set: {
-    //       status: "paid",
-    //     },
-    //   };
-
-    //   const result = await classSelectCollection.updateOne(filter, updateDoc);
-    //   res.send(result);
-    //   console.log("🚀 ~ file: index.js:301 ~ app.patch ~ result:", result)
-    // });
-
     app.post("/create-payment-intent", verifyJWT, async (req, res) => {
       const { price } = req.body;
       const amount = parseInt(price * 100);
@@ -344,24 +329,34 @@ async function run() {
     app.post("/payments", verifyJWT, async (req, res) => {
       const payment = req.body;
       const id = payment?.selectedClassId;
+      const classId = payment?.classId;
       const insertResult = await paymentCollection.insertOne(payment);
-      const options = { upsert: true };
-      const filter = { id: new ObjectId(id) };
+
+      const filter = { _id: new ObjectId(id) };
+      const filterClass = { _id: new ObjectId(classId) };
       const updateDoc = {
         $set: {
-          status: "paid",
+          payment_status: "paid",
+        },
+      };
+      const updateClass = {
+        $inc: {
+          seats: -1,
         },
       };
 
       const updateResult = await classSelectCollection.updateOne(
         filter,
-        updateDoc,
-        options
+        updateDoc
       );
 
-      // res.send(insertResult);
+      const updateClassResult = await classCollection.updateOne(
+        filterClass,
+        updateClass
+      );
 
-      res.send({ insertResult, updateResult });
+      res.send(insertResult);
+
     });
 
     // Send a ping to confirm a successful connection
