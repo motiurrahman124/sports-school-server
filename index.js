@@ -210,7 +210,7 @@ async function run() {
 
     app.get("/class/popular", async (req, res) => {
       const classes = classCollection.find();
-      const result = await classes.sort({ seats: -1 }).limit(6).toArray();
+      const result = await classes.sort({ student: -1 }).limit(6).toArray();
       res.send(result);
     });
 
@@ -342,10 +342,11 @@ async function run() {
       const updateClass = {
         $inc: {
           seats: -1,
+          student: +1
         },
       };
 
-      const updateResult = await classSelectCollection.updateOne(
+      const updateClassSelectResult = await classSelectCollection.updateOne(
         filter,
         updateDoc
       );
