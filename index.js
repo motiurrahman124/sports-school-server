@@ -209,7 +209,8 @@ async function run() {
     });
 
     app.get("/class/popular", async (req, res) => {
-      const classes = classCollection.find();
+      const query = { status: "approved" };
+      const classes = classCollection.find(query);
       const result = await classes.sort({ student: -1 }).limit(6).toArray();
       res.send(result);
     });
@@ -319,8 +320,22 @@ async function run() {
     });
 
     app.get("/payments", verifyJWT, async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        res.send([]);
+      }
+
+      const decodedEmail = req.decoded.email;
+      if (email !== decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: "forbidden access" });
+      }
+
+      const query = { email: email };
+
       const result = await paymentCollection
-        .find()
+        .find(query)
         .sort({ date: -1 })
         .toArray();
       res.send(result);
